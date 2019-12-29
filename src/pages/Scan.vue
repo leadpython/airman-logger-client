@@ -2,8 +2,11 @@
   <div class="scan-container">
     <q-btn @click="showIPEdit = true" style="position: absolute; top: 5px; left: 0px;" flat color="primary" label="Set Server IP" />
     <div class="scan-container-half">
-      <q-icon v-if="isSuccess" name="done_putline" style="font-size: 20px;" color="success" />
-      <q-input outlined v-model="cacid" style="width: 400px" @input="scan" dense />
+      <div style="display: flex; justify-content: center; align-items: center; width: 300px; height: 300px;">
+        <q-icon v-show="isSuccess" name="done_outline" style="font-size: 200px;" color="green"/>
+        <q-icon v-show="isFail" name="block" style="font-size: 100px;" color="red"/>
+      </div>
+      <q-input outlined v-model="cacid" style="width: 400px" @input="scan" dense type="password" />
     </div>
     <div class="scan-container-half">
       <q-table
@@ -74,26 +77,36 @@ export default {
     scan () {
       const self = this
       const serverIP = window.localStorage.getItem('airman-logger-admin-ip')
-      axios.post(`http://${serverIP}/api/scan`, { cacid: self.cacid }).then(response => {
-        const { data, status } = response.data
-        if (status) {
-          const { lastName, firstName, isIn, date } = data.data
-          self.scans.unshift({
-            lastName, firstName, isIn: isIn ? 'IN' : 'OUT', date: date.toLocaleDateString()
-          })
-          self.isSuccess = true
-        } else {
+      self.isSuccess = false
+      self.isFail = false
+      clearTimeout(window.window.scanTimeout)
+      window.scanTimeout = setTimeout(() => {
+        axios.post(`http://${serverIP}/api/scan`, { cacid: self.cacid }).then(response => {
+          const { data, status } = response.data
+          if (status) {
+            const { lastName, firstName, isIn, date } = data
+            self.scans.unshift({
+              lastName, firstName, isIn: isIn ? 'IN' : 'OUT', date: (new Date(date)).toLocaleDateString()
+            })
+            self.isSuccess = true
+          } else {
+            self.isFail = true
+            self.scans.unshift({
+              lastName: 'AIRMAN NOT FOUND!', firstName: '-----', isIn: '------', date: '-----'
+            })
+          }
+          self.cacid = ''
+        }).catch(error => {
+          if (error) {
+            console.log(error)
+          }
           self.isFail = true
-        }
-        self.cacid = ''
-      }).catch(error => {
-        if (error) {
-          console.log(error)
-        }
-        self.isFail = true
-      })
+          self.cacid = ''
+        })
+      }, 100)
     },
     setServerIP () {
+      this.isEditMode = false
       window.localStorage.setItem('airman-logger-admin-ip', this.serverIP)
     }
   }
@@ -108,6 +121,7 @@ export default {
     width: 50vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
   }
