@@ -74,7 +74,7 @@ export default {
     scan () {
       const self = this
       const serverIP = window.localStorage.getItem('airman-logger-admin-ip')
-      axios.post(serverIP).then(response => {
+      axios.post(`http://${serverIP}/api/scan`, { cacid: self.cacid }).then(response => {
         const { data, status } = response.data
         if (status) {
           const { lastName, firstName, isIn, date } = data.data
