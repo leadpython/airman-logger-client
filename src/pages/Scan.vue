@@ -6,7 +6,7 @@
         <q-icon v-show="isSuccess" name="done_outline" style="font-size: 200px;" color="green"/>
         <q-icon v-show="isFail" name="block" style="font-size: 100px;" color="red"/>
       </div>
-      <q-input outlined v-model="cacid" style="width: 400px" @input="scan" dense type="password" />
+      <q-input outlined debounce="500" v-model="cacid" style="width: 400px" @input="scan" dense type="password" />
     </div>
     <div class="scan-container-half">
       <q-table
@@ -86,7 +86,7 @@ export default {
           if (status) {
             const { lastName, firstName, isIn, date } = data
             self.scans.unshift({
-              lastName, firstName, isIn: isIn ? 'IN' : 'OUT', date: (new Date(date)).toLocaleDateString()
+              lastName, firstName, isIn: isIn ? 'IN' : 'OUT', date: (new Date()).toString()
             })
             self.isSuccess = true
           } else {
