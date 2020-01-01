@@ -4,7 +4,7 @@
     <div class="scan-container-half">
       <div style="display: flex; justify-content: center; align-items: center; width: 300px; height: 300px;">
         <q-icon v-show="isSuccess" name="done_outline" style="font-size: 200px;" color="green"/>
-        <q-icon v-show="isFail" name="block" style="font-size: 100px;" color="red"/>
+        <q-icon v-show="isFail" name="block" style="font-size: 200px;" color="red"/>
       </div>
       <q-input outlined debounce="500" v-model="cacid" style="width: 400px" @input="scan" dense type="password" />
     </div>
