@@ -84,7 +84,7 @@ export default {
         axios.post(`http://${serverIP}/api/scan`, { cacid: self.cacid }).then(response => {
           const { data, status } = response.data
           if (status) {
-            const { lastName, firstName, isIn, date } = data
+            const { lastName, firstName, isIn } = data
             self.scans.unshift({
               lastName, firstName, isIn: isIn ? 'IN' : 'OUT', date: (new Date()).toString()
             })
