@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 
 /**
  * Set `__statics` path to static files in production;
@@ -9,6 +9,8 @@ if (process.env.PROD) {
 }
 
 let mainWindow
+const menuTemplate = []
+const menu = Menu.buildFromTemplate(menuTemplate)
 
 function createWindow () {
   /**
@@ -25,7 +27,8 @@ function createWindow () {
       nodeIntegration: true
     }
   })
-
+  
+  Menu.setApplicationMenu(menu)
   mainWindow.loadURL(process.env.APP_URL)
 
   mainWindow.on('closed', () => {
