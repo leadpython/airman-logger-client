@@ -6,7 +6,7 @@
         <q-icon v-show="isSuccess" name="done_outline" style="font-size: 200px;" color="green"/>
         <q-icon v-show="isFail" name="block" style="font-size: 200px;" color="red"/>
       </div>
-      <q-input outlined debounce="500" v-model="cacid" style="width: 400px" @input="scan" dense type="password" />
+      <q-input outlined v-model="cacid" debounce="200" style="width: 400px" @input="scan" dense type="password" />
     </div>
     <div class="scan-container-half">
       <q-table
@@ -63,10 +63,11 @@ export default {
         rowsPerPage: 0
       },
       columns: [
-        { name: 'lastName', label: 'Phase', align: 'left', field: 'lastName' },
-        { name: 'firstName', label: 'Description', align: 'left', field: 'firstName' },
+        { name: 'last_name', label: 'Last Name', align: 'left', field: 'last_name' },
+        { name: 'first_name', label: 'First Name', align: 'left', field: 'first_name' },
+        { name: 'phase', label: 'Phase', align: 'left', field: 'phase' },
         { name: 'isIn', label: 'IN/OUT', align: 'left', field: 'isIn' },
-        { name: 'date', label: 'Timestamp', align: 'left', field: 'date' }
+        { name: 'date', label: 'Timestamp', align: 'left', field: 'date', format: val => `${this.dateFormat(new Date(val))}` }
       ]
     }
   },
@@ -74,6 +75,18 @@ export default {
     this.serverIP = window.localStorage.getItem('airman-logger-admin-ip')
   },
   methods: {
+    dateFormat (date) {
+      if (date === '-----') {
+        return date
+      }
+      var hours = date.getHours()
+      var minutes = date.getMinutes()
+      var ampm = hours >= 12 ? 'pm' : 'am'
+      hours = hours > 12 ? hours - 12 : hours
+      minutes = minutes < 10 ? '0' + minutes : minutes
+      var strTime = hours + ':' + minutes + ' ' + ampm
+      return date.getMonth() + 1 + '/' + date.getDate() + '/' + date.getFullYear() + '  ' + strTime
+    },
     scan () {
       const self = this
       const serverIP = window.localStorage.getItem('airman-logger-admin-ip')
@@ -84,15 +97,15 @@ export default {
         axios.post(`http://${serverIP}/api/scan`, { cacid: self.cacid }).then(response => {
           const { data, status } = response.data
           if (status) {
-            const { lastName, firstName, isIn } = data
+            const { isIn, phase } = data
             self.scans.unshift({
-              lastName, firstName, isIn: isIn ? 'IN' : 'OUT', date: (new Date()).toString()
+              last_name: data.last_name, first_name: data.first_name, isIn: isIn ? 'IN' : 'OUT', phase, date: (new Date())
             })
             self.isSuccess = true
           } else {
             self.isFail = true
             self.scans.unshift({
-              lastName: 'AIRMAN NOT FOUND!', firstName: '-----', isIn: '------', date: '-----'
+              last_name: 'AIRMAN NOT FOUND!', first_name: '-----', isIn: '------', date: '-----'
             })
           }
           self.cacid = ''
@@ -135,5 +148,9 @@ export default {
     color: rgb(100,100,100);
 
   }
+}
+
+tr:nth-child(even) {
+  background-color: #EBEBEB;
 }
 </style>
